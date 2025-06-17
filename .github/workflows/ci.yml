@@ -8,7 +8,12 @@ on:
 jobs:
   train-model:
     runs-on: ubuntu-latest
-
+    
+    env:
+      MLFLOW_TRACKING_USERNAME: ItsNudle
+      MLFLOW_TRACKING_PASSWORD: ${{ secrets.MLFLOW_TRACKING_PASSWORD }}
+      MLFLOW_TRACKING_URI     : https://dagshub.com/ItsNudle/Workflow-CI.mlflow
+      
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
