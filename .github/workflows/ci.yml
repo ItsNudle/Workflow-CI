@@ -71,7 +71,11 @@ jobs:
           --run-id $RUN_ID \
           --artifact-path model \
           -d ./downloaded_artifacts
-
-        # Pindahkan model ke lokasi ./model/
         mkdir -p model
         mv ./downloaded_artifacts/model ./model/sklearn_model
+        
+    - name: Upload to GitHub artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: sklearn_model_artifact
+        path: ./model/sklearn_model
