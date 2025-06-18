@@ -32,3 +32,28 @@ jobs:
       run: |
         cd MLProject
         mlflow run . --env-manager=local  --run-name model_ml_eksperimen --experiment-name "Model ML Eksperimen"
+
+    - name: Get latest MLflow run_id
+      run: |
+        echo "Getting latest run ID..."
+        python <<EOF
+        import mlflow
+        client = mlflow.tracking.MlflowClient()
+        runs = client.search_runs(experiment_ids=["1"], order_by=["start_time DESC"])
+        run_id = runs[0].info.run_id
+        print(f"Latest run ID: {run_id}")
+        with open("${{ github.env }}", "a") as f:
+            f.write(f"RUN_ID={run_id}\n")
+        EOF
+
+    - name: Download model artifacts
+      run: |
+        echo "Downloading model artifact for run: $RUN_ID"
+        mlflow artifacts download --run-id $RUN_ID --artifact-path random_forest_model -d ./downloaded
+        mv ./downloaded/random_forest_model ./random_forest_model
+
+    - name: Upload to GitHub artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: model_ml_artifact
+        path: ./model_ml
