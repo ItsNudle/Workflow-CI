@@ -79,3 +79,26 @@ jobs:
       with:
         name: sklearn_model_artifact
         path: ./model/sklearn_model
+
+    - name: Build Docker Model
+      run: |
+        echo "🐳 Building Docker image for the model"
+        mlflow models build-docker \
+          --model-uri ./model/sklearn_model \
+          --name nudle/model-ml
+          
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+    - name: Tag Docker Image
+      run: |
+        echo "🏷️ Tagging Docker image with :latest"
+        docker tag nudle/model-ml ItsNudle/model-ml:latest
+
+    - name: Push Docker Image
+      run: |
+        echo "📤 Pushing Docker image to Docker Hub"
+        docker push nudle/model-ml:latest
