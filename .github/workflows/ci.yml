@@ -38,22 +38,40 @@ jobs:
         echo "Getting latest run ID..."
         python <<EOF
         import mlflow
+        import os
+        
+        # Set tracking URI dari environment (misal dari DagsHub)
+        mlflow.set_tracking_uri(os.environ["MLFLOW_TRACKING_URI"])
+        
+        experiment_name = "Model ML Eksperimen"
         client = mlflow.tracking.MlflowClient()
-        runs = client.search_runs(experiment_ids=["1"], order_by=["start_time DESC"])
+        experiment = client.get_experiment_by_name(experiment_name)
+        
+        if experiment is None:
+            print(f"❌ Experiment '{experiment_name}' not found.")
+            exit(1)
+        
+        runs = client.search_runs(experiment_ids=[experiment.experiment_id], order_by=["start_time DESC"])
+        
+        if not runs:
+            print("❌ No MLflow runs found.")
+            exit(1)
+        
         run_id = runs[0].info.run_id
-        print(f"Latest run ID: {run_id}")
-        with open("${{ github.env }}", "a") as f:
+        print(f"✅ Latest run ID: {run_id}")
+        
+        with open(os.environ["GITHUB_ENV"], "a") as f:
             f.write(f"RUN_ID={run_id}\n")
         EOF
 
     - name: Download model artifacts
       run: |
-        echo "Downloading model artifact for run: $RUN_ID"
-        mlflow artifacts download --run-id $RUN_ID --artifact-path random_forest_model -d ./downloaded
-        mv ./downloaded/random_forest_model ./random_forest_model
+        echo "📥 Downloading model artifact for run: $RUN_ID"
+        mlflow artifacts download \
+          --run-id $RUN_ID \
+          --artifact-path model \
+          -d ./downloaded_artifacts
 
-    - name: Upload to GitHub artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: model_ml_artifact
-        path: ./model_ml
+        # Pindahkan model ke lokasi ./model/
+        mkdir -p model
+        mv ./downloaded_artifacts/model ./model/sklearn_model
