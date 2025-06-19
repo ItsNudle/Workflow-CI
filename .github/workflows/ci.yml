@@ -86,7 +86,7 @@ jobs:
       run: |
         echo "🐳 Building Docker image for the model"
         mlflow models build-docker \
-          --model-uri ./model/sklearn_model \
+          --model-uri ./MLProject/model_artifacts/sklearn_model \
           --name nudle/model-ml
           
     - name: Log in to Docker Hub
