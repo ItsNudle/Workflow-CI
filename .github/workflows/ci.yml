@@ -70,23 +70,21 @@ jobs:
         mlflow artifacts download \
           --run-id $RUN_ID \
           --artifact-path model \
-          -d ./MLProject/model_artifacts/tmp_download
-        mkdir -p ./MLProject/model_artifacts
-        mv ./MLProject/model_artifacts/tmp_download/model ./MLProject/model_artifacts/sklearn_model
-        rm -rf ./MLProject/model_artifacts/tmp_download
-    
+          -d ./downloaded_artifacts
+        mkdir -p model
+        mv ./downloaded_artifacts/model ./model/sklearn_model
+
     - name: Upload to GitHub artifact
       uses: actions/upload-artifact@v4
       with:
         name: sklearn_model_artifact
-        path: ./MLProject/model_artifacts/sklearn_model
-
+        path: ./model/sklearn_model
 
     - name: Build Docker Model
       run: |
         echo "🐳 Building Docker image for the model"
         mlflow models build-docker \
-          --model-uri ./MLProject/model_artifacts/sklearn_model \
+          --model-uri ./model/sklearn_model \
           --name nudle/model-ml
           
     - name: Log in to Docker Hub
