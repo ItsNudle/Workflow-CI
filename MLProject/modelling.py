@@ -19,7 +19,6 @@ os.environ["MLFLOW_TRACKING_PASSWORD"] = mlflow_password
 
 mlflow.set_tracking_uri(mlflow_tracking_uri)
 mlflow.set_experiment("Model ML Eksperimen")
-mlflow.sklearn.autolog()
 
 X = pd.read_csv("spam_ham_emails_preprocessing/tfidf.csv")
 y = pd.read_csv("spam_ham_emails_preprocessing/labels.csv")["label"]
@@ -93,5 +92,5 @@ with mlflow.start_run():
         signature=signature,
         input_example=input_example
     )
-
+    
 print("✅ Model berhasil dituning dan dicatat di DagsHub MLflow.")
